@@ -45,4 +45,17 @@ public class WalletController {
     }
 
 
+    @GetMapping("/{phoneNumber}")
+    public ResponseEntity<RestResponse<WalletResponseDto>> getWalletByPhone(
+            @PathVariable String phoneNumber) {
+        WalletResponseDto wallet = walletService.getWalletByPhone(phoneNumber);
+        return ResponseEntity.ok(RestResponse.success("Portefeuille récupéré", wallet));
+    }
+
+    @GetMapping("/{phoneNumber}/balance")
+    public ResponseEntity<RestResponse<BigDecimal>> getBalance(@PathVariable String phoneNumber) {
+        BigDecimal balance = walletService.getBalance(phoneNumber);
+        return ResponseEntity.ok(RestResponse.success("Solde récupéré", balance));
+    }
+
 }

@@ -80,8 +80,23 @@ public class WalletServiceImpl implements WalletService {
         return walletRepository.findAll(pageable).map(WalletMapper::toDto);
     }
 
-    
+    @Override
+    @Transactional(readOnly = true)
+    public WalletResponseDto getWalletByPhone(String phoneNumber) {
+        return WalletMapper.toDto(findWalletByPhone(phoneNumber));
+    }
 
+    @Override
+    @Transactional(readOnly = true)
+    public BigDecimal getBalance(String phoneNumber) {
+        return findWalletByPhone(phoneNumber).getBalance();
+    }
+
+    private Wallet findWalletByPhone(String phoneNumber) {
+        return walletRepository.findByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Portefeuille introuvable pour le numéro: " + phoneNumber));
+    }
 
 
 }
