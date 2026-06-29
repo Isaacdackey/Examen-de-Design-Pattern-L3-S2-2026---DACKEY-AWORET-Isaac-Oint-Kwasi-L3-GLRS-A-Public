@@ -95,3 +95,25 @@ Content-Type: application/json
 ### 2.3 Consulter les factures impayées sur une période
 GET {{walletHost}}/api/external/factures/WLT-0000003/periode?debut=2026-05-01&fin=2026-07-01
 Content-Type: application/json
+
+
+
+### 3.1 Login
+POST {{walletHost}}/api/auth/login
+Content-Type: application/json
+
+{
+  "phoneNumber": "+221770000001",
+  "password": "password123"
+}
+
+### 3.2 Register
+POST {{walletHost}}/api/auth/register
+Content-Type: application/json
+
+{
+  "phoneNumber": "+221779999999",
+  "email": "nouveauclient@gmail.com",
+  "password": "password123",
+  "role": "CLIENT"
+}
