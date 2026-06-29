@@ -1,9 +1,13 @@
 package BadWalletAPIPaymentService.BadWalletAPIPaymentService.wallet.web;
 
+import BadWalletAPIPaymentService.BadWalletAPIPaymentService.shared.exceptions.EntityNotFoundException;
 import BadWalletAPIPaymentService.BadWalletAPIPaymentService.shared.response.PageResponse;
 import BadWalletAPIPaymentService.BadWalletAPIPaymentService.shared.response.RestResponse;
+import BadWalletAPIPaymentService.BadWalletAPIPaymentService.wallet.data.entity.Transaction;
+import BadWalletAPIPaymentService.BadWalletAPIPaymentService.wallet.data.entity.Wallet;
 import BadWalletAPIPaymentService.BadWalletAPIPaymentService.wallet.service.WalletService;
 import BadWalletAPIPaymentService.BadWalletAPIPaymentService.wallet.web.dto.*;
+import BadWalletAPIPaymentService.BadWalletAPIPaymentService.wallet.web.mapper.WalletMapper;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -57,5 +61,15 @@ public class WalletController {
         BigDecimal balance = walletService.getBalance(phoneNumber);
         return ResponseEntity.ok(RestResponse.success("Solde récupéré", balance));
     }
+
+    @PostMapping("/{id}/deposit")
+    public ResponseEntity<RestResponse<TransactionResponseDto>> deposit(
+            @PathVariable Long id,
+            @Valid @RequestBody DepositRequestDto dto) {
+        TransactionResponseDto tx = walletService.deposit(id, dto);
+        return ResponseEntity.ok(RestResponse.success("Dépôt effectué avec succès", tx));
+    }
+
+
 
 }

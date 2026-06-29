@@ -98,5 +98,22 @@ public class WalletServiceImpl implements WalletService {
                         "Portefeuille introuvable pour le numéro: " + phoneNumber));
     }
 
+    @Override
+    public TransactionResponseDto deposit(Long walletId, DepositRequestDto dto) {
+        Wallet wallet = walletRepository.findById(walletId)
+                .orElseThrow(() -> new EntityNotFoundException("Portefeuille introuvable avec l'id: " + walletId));
+
+        if ("CREDIT_CARD".equalsIgnoreCase(dto.paymentMethod())) {
+            paymentGatewayService.processStripePayment(dto.amount());
+        }
+
+        wallet.setBalance(wallet.getBalance().add(dto.amount()));
+        walletRepository.save(wallet);
+
+        String desc = "Dépôt via " + (dto.paymentMethod() != null ? dto.paymentMethod() : "CASH");
+        Transaction tx = transactionService.saveDepot(wallet, dto.amount(), desc);
+        return WalletMapper.toTransactionDto(tx);
+    }
+
 
 }
