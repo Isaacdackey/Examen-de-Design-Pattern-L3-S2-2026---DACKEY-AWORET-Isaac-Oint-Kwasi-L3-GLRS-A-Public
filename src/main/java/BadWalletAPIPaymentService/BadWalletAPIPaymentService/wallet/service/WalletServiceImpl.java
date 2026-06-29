@@ -115,5 +115,27 @@ public class WalletServiceImpl implements WalletService {
         return WalletMapper.toTransactionDto(tx);
     }
 
+    @Override
+    public TransactionResponseDto withdraw(WithdrawRequestDto dto) {
+        Wallet wallet = findWalletByPhone(dto.phoneNumber());
+
+        BigDecimal fees = dto.amount().multiply(BigDecimal.valueOf(feeRate));
+        BigDecimal maxFees = BigDecimal.valueOf(feeMax);
+        if (fees.compareTo(maxFees) > 0) fees = maxFees;
+        fees = fees.setScale(2, RoundingMode.HALF_UP);
+
+        BigDecimal totalDebit = dto.amount().add(fees);
+        if (wallet.getBalance().compareTo(totalDebit) < 0) {
+            throw new InsufficientFundsException(
+                    "Solde insuffisant. Solde: " + wallet.getBalance() + " XOF, Requis: " + totalDebit + " XOF (dont " + fees + " XOF de frais)");
+        }
+
+        wallet.setBalance(wallet.getBalance().subtract(totalDebit));
+        walletRepository.save(wallet);
+
+        Transaction tx = transactionService.saveRetrait(wallet, dto.amount(), fees);
+        return WalletMapper.toTransactionDto(tx);
+    }
+
 
 }

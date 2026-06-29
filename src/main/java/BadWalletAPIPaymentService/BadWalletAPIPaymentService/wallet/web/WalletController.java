@@ -70,6 +70,13 @@ public class WalletController {
         return ResponseEntity.ok(RestResponse.success("Dépôt effectué avec succès", tx));
     }
 
+    @PostMapping("/withdraw")
+    public ResponseEntity<RestResponse<TransactionResponseDto>> withdraw(
+            @Valid @RequestBody WithdrawRequestDto dto) {
+        TransactionResponseDto tx = walletService.withdraw(dto);
+        return ResponseEntity.ok(RestResponse.success("Retrait effectué avec succès", tx));
+    }
+
 
 
 }
