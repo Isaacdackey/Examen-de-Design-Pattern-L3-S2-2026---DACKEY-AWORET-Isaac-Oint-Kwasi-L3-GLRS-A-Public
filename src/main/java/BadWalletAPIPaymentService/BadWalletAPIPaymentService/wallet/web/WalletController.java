@@ -91,6 +91,12 @@ public class WalletController {
         return ResponseEntity.ok(RestResponse.success("Paiement effectué avec succès", tx));
     }
 
+    @GetMapping("/{phoneNumber}/transactions")
+    public ResponseEntity<RestResponse<List<TransactionResponseDto>>> getTransactionHistory(
+            @PathVariable String phoneNumber) {
+        List<TransactionResponseDto> history = walletService.getTransactionHistory(phoneNumber);
+        return ResponseEntity.ok(RestResponse.success("Historique des transactions récupéré", history));
+    }
 
 
 }

@@ -176,4 +176,11 @@ public class WalletServiceImpl implements WalletService {
         return WalletMapper.toTransactionDto(tx);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<TransactionResponseDto> getTransactionHistory(String phoneNumber) {
+        findWalletByPhone(phoneNumber);
+        return transactionService.getHistory(phoneNumber);
+    }
+
 }
