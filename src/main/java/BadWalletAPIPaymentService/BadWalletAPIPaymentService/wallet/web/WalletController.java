@@ -99,4 +99,13 @@ public class WalletController {
     }
 
 
+    @PostMapping("/pay-factures")
+    public ResponseEntity<RestResponse<List<TransactionResponseDto>>> payFactures(
+            @Valid @RequestBody PayFacturesRequestDto dto) {
+        List<TransactionResponseDto> txList = walletService.payFactures(dto);
+        return ResponseEntity.ok(RestResponse.success(
+                txList.size() + " facture(s) payée(s) avec succès", txList));
+    }
+
+
 }

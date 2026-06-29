@@ -183,4 +183,41 @@ public class WalletServiceImpl implements WalletService {
         return transactionService.getHistory(phoneNumber);
     }
 
+    @Override
+    public List<TransactionResponseDto> payFactures(PayFacturesRequestDto dto) {
+        Wallet wallet = findWalletByPhone(dto.phoneNumber());
+        List<Facture> factures = factureService.findByReferences(dto.factureReferences());
+
+        if (factures.isEmpty()) {
+            throw new EntityNotFoundException("Aucune facture trouvée pour les références fournies");
+        }
+
+        BigDecimal totalAmount = factures.stream()
+                .filter(f -> !f.isPayee())
+                .map(Facture::getMontant)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        if (wallet.getBalance().compareTo(totalAmount) < 0) {
+            throw new InsufficientFundsException(
+                    "Solde insuffisant. Total factures: " + totalAmount + " XOF, Solde: " + wallet.getBalance() + " XOF");
+        }
+
+        List<TransactionResponseDto> results = new ArrayList<>();
+        for (Facture facture : factures) {
+            if (facture.isPayee()) continue;
+
+            wallet.setBalance(wallet.getBalance().subtract(facture.getMontant()));
+            facture.setPayee(true);
+            facture.setDatePaiement(LocalDateTime.now());
+
+            Transaction tx = transactionService.savePaiement(wallet,
+                    facture.getMontant(),
+                    "Paiement facture " + facture.getReference() + " - " + dto.serviceName());
+            results.add(WalletMapper.toTransactionDto(tx));
+        }
+
+        walletRepository.save(wallet);
+        return results;
+    }
+
 }
