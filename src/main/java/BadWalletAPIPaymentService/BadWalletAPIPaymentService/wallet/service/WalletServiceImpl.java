@@ -74,8 +74,13 @@ public class WalletServiceImpl implements WalletService {
         return WalletMapper.toDto(wallet);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Page<WalletResponseDto> getAllWallets(Pageable pageable) {
+        return walletRepository.findAll(pageable).map(WalletMapper::toDto);
+    }
 
-
+    
 
 
 

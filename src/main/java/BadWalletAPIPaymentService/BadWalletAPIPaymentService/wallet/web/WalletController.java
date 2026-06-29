@@ -34,6 +34,15 @@ public class WalletController {
                 .body(RestResponse.success("Portefeuille créé avec succès", created));
     }
 
+    @GetMapping
+    public ResponseEntity<RestResponse<PageResponse<WalletResponseDto>>> getAllWallets(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        var pageResult = walletService.getAllWallets(PageRequest.of(page, size));
+        return ResponseEntity.ok(RestResponse.success(
+                "Liste des portefeuilles récupérée",
+                PageResponse.fromPage(pageResult)));
+    }
 
 
 }
