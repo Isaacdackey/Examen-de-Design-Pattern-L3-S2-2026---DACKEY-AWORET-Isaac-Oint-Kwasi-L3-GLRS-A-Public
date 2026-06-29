@@ -42,29 +42,43 @@ public class DataSeeder implements CommandLineRunner {
     public void run(String... args) {
         if (walletRepository.count() > 0) return;
 
-        String[][] walletData = {
-                {"+221770000001", "client1@gmail.com", "WLT-0000001", "150000"},
-                {"+221770000002", "client2@gmail.com", "WLT-0000002", "80000"},
-                {"+221770000003", "client3@gmail.com", "WLT-0000003", "200000"},
-                {"+221770000004", "client4@gmail.com", "WLT-0000004", "50000"},
-                {"+221770000005", "client5@gmail.com", "WLT-0000005", "320000"},
+
+        Object[][] walletData = {
+                {"+221770000001", "client1@gmail.com", "WLT-0000001", "150000", "CLIENT"},
+                {"+221770000002", "agent1@gmail.com", "WLT-0000002", "80000", "AGENT"},
+                {"+221770000003", "agent2@gmail.com", "WLT-0000003", "200000", "AGENT"},
+                {"+221770000004", "client4@gmail.com", "WLT-0000004", "50000", "CLIENT"},
+                {"+221770000005", "client5@gmail.com", "WLT-0000005", "320000", "CLIENT"},
         };
 
         for (int i = 0; i < walletData.length; i++) {
-            String[] data = walletData[i];
+            Object[] data = walletData[i];
 
-            Wallet wallet = walletFactory.createSeedWallet(
-                    data[0], data[1], data[2], data[3]
-            );
+            String phone = (String) data[0];
+            String email = (String) data[1];
+            String code = (String) data[2];
+            String balanceStr = (String) data[3];
+            String role = (String) data[4];
+
+            Wallet wallet = Wallet.builder()
+                    .phoneNumber(phone)
+                    .email(email)
+                    .code(code)
+                    .balance(new BigDecimal(balanceStr))
+                    .currency("XOF")
+                    .role(role)
+                    .build();
+
             walletRepository.save(wallet);
 
-            BigDecimal initialBalance = new BigDecimal(data[3]);
-            var transaction = transactionFactory.createDepositTransaction(
-                    wallet, initialBalance, "Dépôt initial"
-            );
+
+            BigDecimal initialBalance = new BigDecimal(balanceStr);
             transactionService.saveDepot(wallet, initialBalance, "Dépôt initial");
 
+
             factureService.seedFactures(wallet, i + 1);
+
+            System.out.println("Wallet créé: " + phone + " - Rôle: " + role);
         }
     }
 }

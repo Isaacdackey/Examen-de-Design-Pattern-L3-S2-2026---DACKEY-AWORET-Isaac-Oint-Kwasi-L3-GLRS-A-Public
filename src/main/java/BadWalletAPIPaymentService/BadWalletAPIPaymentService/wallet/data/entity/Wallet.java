@@ -38,6 +38,10 @@ public class Wallet {
     @Column(nullable = false)
     private String currency;
 
+
+    @Column(nullable = false)
+    private String role = "CLIENT";
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -52,6 +56,9 @@ public class Wallet {
         }
         if (currency == null) {
             currency = "XOF";
+        }
+        if (role == null) {
+            role = "CLIENT";
         }
     }
 }
