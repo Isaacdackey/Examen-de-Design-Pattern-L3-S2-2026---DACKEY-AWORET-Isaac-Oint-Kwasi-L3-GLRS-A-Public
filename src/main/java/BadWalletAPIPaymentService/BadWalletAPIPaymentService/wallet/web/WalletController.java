@@ -84,6 +84,13 @@ public class WalletController {
         return ResponseEntity.ok(RestResponse.success("Transfert effectué avec succès", tx));
     }
 
+    @PostMapping("/pay")
+    public ResponseEntity<RestResponse<TransactionResponseDto>> pay(
+            @Valid @RequestBody PayRequestDto dto) {
+        TransactionResponseDto tx = walletService.pay(dto);
+        return ResponseEntity.ok(RestResponse.success("Paiement effectué avec succès", tx));
+    }
+
 
 
 }

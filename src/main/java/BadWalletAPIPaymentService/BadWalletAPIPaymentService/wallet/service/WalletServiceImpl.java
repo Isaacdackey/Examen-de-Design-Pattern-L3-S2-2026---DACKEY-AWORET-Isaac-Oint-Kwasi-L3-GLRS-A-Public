@@ -159,4 +159,21 @@ public class WalletServiceImpl implements WalletService {
         return WalletMapper.toTransactionDto(tx);
     }
 
+    @Override
+    public TransactionResponseDto pay(PayRequestDto dto) {
+        Wallet wallet = findWalletByPhone(dto.phoneNumber());
+
+        if (wallet.getBalance().compareTo(dto.amount()) < 0) {
+            throw new InsufficientFundsException("Solde insuffisant pour le paiement");
+        }
+
+        paymentGatewayService.processPayment(wallet.getCode(), dto.serviceName(), dto.amount());
+
+        wallet.setBalance(wallet.getBalance().subtract(dto.amount()));
+        walletRepository.save(wallet);
+
+        Transaction tx = transactionService.savePaiement(wallet, dto.amount(), "Paiement " + dto.serviceName());
+        return WalletMapper.toTransactionDto(tx);
+    }
+
 }
