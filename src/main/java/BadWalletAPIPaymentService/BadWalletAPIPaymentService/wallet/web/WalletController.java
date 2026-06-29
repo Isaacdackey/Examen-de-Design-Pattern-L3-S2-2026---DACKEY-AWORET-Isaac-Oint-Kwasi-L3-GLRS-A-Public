@@ -19,6 +19,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/wallets")
+@CrossOrigin(origins = "http://localhost:4200")
 public class WalletController {
 
     private final WalletService walletService;
