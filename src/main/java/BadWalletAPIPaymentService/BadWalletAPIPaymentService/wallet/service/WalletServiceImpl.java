@@ -137,5 +137,26 @@ public class WalletServiceImpl implements WalletService {
         return WalletMapper.toTransactionDto(tx);
     }
 
+    @Override
+    public TransactionResponseDto transfer(TransferRequestDto dto) {
+        if (dto.senderPhone().equals(dto.receiverPhone())) {
+            throw new IllegalArgumentException("L'expéditeur et le destinataire ne peuvent pas être identiques");
+        }
+        Wallet sender = findWalletByPhone(dto.senderPhone());
+        Wallet receiver = findWalletByPhone(dto.receiverPhone());
+
+        if (sender.getBalance().compareTo(dto.amount()) < 0) {
+            throw new InsufficientFundsException("Solde insuffisant pour effectuer le transfert");
+        }
+
+        sender.setBalance(sender.getBalance().subtract(dto.amount()));
+        receiver.setBalance(receiver.getBalance().add(dto.amount()));
+        walletRepository.save(sender);
+        walletRepository.save(receiver);
+
+        Transaction tx = transactionService.saveTransfertEnvoi(sender, dto.amount(), dto.receiverPhone());
+        transactionService.saveTransfertReception(receiver, dto.amount(), dto.senderPhone());
+        return WalletMapper.toTransactionDto(tx);
+    }
 
 }
