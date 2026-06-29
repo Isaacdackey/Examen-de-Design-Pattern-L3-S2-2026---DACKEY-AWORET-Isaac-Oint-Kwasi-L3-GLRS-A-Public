@@ -1,0 +1,39 @@
+package BadWalletAPIPaymentService.BadWalletAPIPaymentService.wallet.web;
+
+import BadWalletAPIPaymentService.BadWalletAPIPaymentService.shared.response.PageResponse;
+import BadWalletAPIPaymentService.BadWalletAPIPaymentService.shared.response.RestResponse;
+import BadWalletAPIPaymentService.BadWalletAPIPaymentService.wallet.service.WalletService;
+import BadWalletAPIPaymentService.BadWalletAPIPaymentService.wallet.web.dto.*;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/wallets")
+public class WalletController {
+
+    private final WalletService walletService;
+
+    public WalletController(WalletService walletService) {
+        this.walletService = walletService;
+    }
+
+
+
+
+    @PostMapping
+    public ResponseEntity<RestResponse<WalletResponseDto>> createWallet(
+            @Valid @RequestBody WalletCreateRequestDto dto) {
+        WalletResponseDto created = walletService.createWallet(dto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(RestResponse.success("Portefeuille créé avec succès", created));
+    }
+
+
+
+}
