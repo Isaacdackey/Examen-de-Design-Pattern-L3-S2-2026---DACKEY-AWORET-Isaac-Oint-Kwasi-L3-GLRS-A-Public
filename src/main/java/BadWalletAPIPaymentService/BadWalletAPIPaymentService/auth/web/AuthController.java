@@ -25,13 +25,19 @@ public class AuthController {
         String phoneNumber = credentials.get("phoneNumber");
         String password = credentials.get("password");
 
+        System.out.println("Tentative de login: " + phoneNumber);
+
         Wallet wallet = walletRepository.findByPhoneNumber(phoneNumber).orElse(null);
 
         if (wallet == null) {
+            System.out.println("Wallet non trouvé: " + phoneNumber);
             return ResponseEntity.status(401).body(
                     RestResponse.error("Numéro de téléphone ou mot de passe incorrect")
             );
         }
+
+        System.out.println("Wallet trouvé: " + wallet.getPhoneNumber());
+        System.out.println("Rôle du wallet: " + wallet.getRole());
 
         Map<String, Object> data = new HashMap<>();
         data.put("token", "fake-jwt-token-" + System.currentTimeMillis());
@@ -40,10 +46,18 @@ public class AuthController {
         user.put("id", wallet.getId());
         user.put("phoneNumber", wallet.getPhoneNumber());
         user.put("email", wallet.getEmail());
-        user.put("role", "CLIENT");
+
+
+        String role = wallet.getRole();
+        if (role == null || role.isEmpty()) {
+            role = "CLIENT";
+        }
+        user.put("role", role);
         user.put("username", wallet.getEmail());
 
         data.put("user", user);
+
+        System.out.println("📤 Rôle envoyé: " + role);
 
         return ResponseEntity.ok(RestResponse.success("Connexion réussie", data));
     }
@@ -61,13 +75,13 @@ public class AuthController {
             );
         }
 
-
         Wallet wallet = new Wallet();
         wallet.setPhoneNumber(phoneNumber);
         wallet.setEmail(email);
         wallet.setCode("WLT-" + System.currentTimeMillis());
         wallet.setBalance(java.math.BigDecimal.ZERO);
         wallet.setCurrency("XOF");
+        wallet.setRole(role);
 
         walletRepository.save(wallet);
 
@@ -78,7 +92,7 @@ public class AuthController {
         user.put("id", wallet.getId());
         user.put("phoneNumber", wallet.getPhoneNumber());
         user.put("email", wallet.getEmail());
-        user.put("role", role);
+        user.put("role", wallet.getRole());
         user.put("username", wallet.getEmail());
 
         data.put("user", user);
