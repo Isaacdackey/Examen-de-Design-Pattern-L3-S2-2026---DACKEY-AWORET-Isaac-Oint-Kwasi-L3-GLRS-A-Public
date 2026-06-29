@@ -220,4 +220,29 @@ public class WalletServiceImpl implements WalletService {
         return results;
     }
 
+    @Override
+    @Async
+    public void seedWallets(int numWallets, int eventsPerWallet) {
+        for (int i = 1; i <= numWallets; i++) {
+            String phone = "+22177000" + String.format("%04d", i);
+            if (walletRepository.existsByPhoneNumber(phone)) continue;
+
+            Wallet wallet = walletFactory.createWallet(
+                    phone,
+                    "wallet" + i + "@badwallet.sn",
+                    "WLT-" + String.format("%07d", i),
+                    BigDecimal.valueOf(50000)
+            );
+            walletRepository.save(wallet);
+
+            for (int j = 0; j < eventsPerWallet; j++) {
+                transactionService.saveDepot(wallet,
+                        BigDecimal.valueOf(1000 + (j * 500L)),
+                        "Transaction seed #" + j);
+            }
+
+            factureService.seedFactures(wallet, i);
+        }
+    }
+
 }
